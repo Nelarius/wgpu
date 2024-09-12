@@ -78,6 +78,46 @@ pub fn map_address_mode(address: wgt::AddressMode) -> metal::MTLSamplerAddressMo
     }
 }
 
+pub fn map_attribute_format(format: wgt::VertexFormat) -> metal::MTLAttributeFormat {
+    use metal::MTLAttributeFormat::*;
+    use wgt::VertexFormat as Vf;
+
+    match format {
+        Vf::Unorm8x2 => UChar2Normalized,
+        Vf::Snorm8x2 => Char2Normalized,
+        Vf::Uint8x2 => UChar2,
+        Vf::Sint8x2 => Char2,
+        Vf::Unorm8x4 => UChar4Normalized,
+        Vf::Snorm8x4 => Char4Normalized,
+        Vf::Uint8x4 => UChar4,
+        Vf::Sint8x4 => Char4,
+        Vf::Unorm16x2 => UShort2Normalized,
+        Vf::Snorm16x2 => Short2Normalized,
+        Vf::Uint16x2 => UShort2,
+        Vf::Sint16x2 => Short2,
+        Vf::Float16x2 => Half2,
+        Vf::Unorm16x4 => UShort4Normalized,
+        Vf::Snorm16x4 => Short4Normalized,
+        Vf::Uint16x4 => UShort4,
+        Vf::Sint16x4 => Short4,
+        Vf::Float16x4 => Half4,
+        Vf::Uint32 => UInt,
+        Vf::Sint32 => Int,
+        Vf::Float32 => Float,
+        Vf::Uint32x2 => UInt2,
+        Vf::Sint32x2 => Int2,
+        Vf::Float32x2 => Float2,
+        Vf::Uint32x3 => UInt3,
+        Vf::Sint32x3 => Int3,
+        Vf::Float32x3 => Float3,
+        Vf::Uint32x4 => UInt4,
+        Vf::Sint32x4 => Int4,
+        Vf::Float32x4 => Float4,
+        Vf::Unorm10_10_10_2 => UInt1010102Normalized,
+        Vf::Float64 | Vf::Float64x2 | Vf::Float64x3 | Vf::Float64x4 => unimplemented!(),
+    }
+}
+
 pub fn map_border_color(border_color: wgt::SamplerBorderColor) -> metal::MTLSamplerBorderColor {
     use metal::MTLSamplerBorderColor::*;
     match border_color {
@@ -85,6 +125,15 @@ pub fn map_border_color(border_color: wgt::SamplerBorderColor) -> metal::MTLSamp
         wgt::SamplerBorderColor::OpaqueBlack => OpaqueBlack,
         wgt::SamplerBorderColor::OpaqueWhite => OpaqueWhite,
         wgt::SamplerBorderColor::Zero => unreachable!(),
+    }
+}
+
+pub fn map_index_format(format: wgt::IndexFormat) -> metal::MTLIndexType {
+    use metal::MTLIndexType::*;
+    use wgt::IndexFormat as If;
+    match format {
+        If::Uint16 => UInt16,
+        If::Uint32 => UInt32,
     }
 }
 

@@ -1402,9 +1402,75 @@ impl crate::Device for super::Device {
 
     unsafe fn get_acceleration_structure_build_sizes(
         &self,
-        _desc: &crate::GetAccelerationStructureBuildSizesDescriptor<super::Buffer>,
+        build_size_desc: &crate::GetAccelerationStructureBuildSizesDescriptor<super::Buffer>,
     ) -> crate::AccelerationStructureBuildSizes {
-        unimplemented!()
+        let device = self.shared.device.lock();
+
+        match build_size_desc.entries {
+            crate::AccelerationStructureEntries::AABBs(ref _aabbs) => {
+                unimplemented!()
+            }
+            crate::AccelerationStructureEntries::Instances(ref _instances) => {
+                unimplemented!()
+            }
+            crate::AccelerationStructureEntries::Triangles(ref triangles) => {
+                let mut geometry_descs = Vec::with_capacity(triangles.len());
+
+                for triangle_as_entry in triangles {
+                    let geometry_desc =
+                        metal::AccelerationStructureTriangleGeometryDescriptor::descriptor();
+
+                    if let Some(ref vertex_buffer) = triangle_as_entry.vertex_buffer {
+                        geometry_desc.set_vertex_buffer(Some(&&vertex_buffer.raw));
+                        geometry_desc.set_vertex_format(conv::map_attribute_format(
+                            triangle_as_entry.vertex_format,
+                        ));
+                        let vertex_offset = (triangle_as_entry.first_vertex as u64)
+                            * triangle_as_entry.vertex_stride;
+                        geometry_desc.set_vertex_buffer_offset(vertex_offset);
+                        geometry_desc.set_vertex_stride(triangle_as_entry.vertex_stride);
+                    }
+
+                    let triangle_count = if let Some(ref as_indices) = triangle_as_entry.indices {
+                        // TODO: how can there be an index entry without an index buffer?
+                        if let Some(ref index_buffer) = as_indices.buffer {
+                            geometry_desc.set_index_buffer(Some(&&index_buffer.raw));
+                            geometry_desc.set_index_buffer_offset(as_indices.offset as u64);
+                            geometry_desc.set_index_type(conv::map_index_format(as_indices.format));
+                        }
+                        as_indices.count / 3
+                    } else {
+                        triangle_as_entry.vertex_count
+                    };
+
+                    geometry_desc.set_triangle_count(triangle_count as metal::NSUInteger);
+
+                    // TODO instance transform buffer
+
+                    geometry_descs.push(geometry_desc);
+                }
+
+                // TODO: building the primitive acceleration structure here is not ideal, because we will have to do it again
+                // later on when we actually build the acceleration structure.
+                let primitive_as_desc =
+                    metal::PrimitiveAccelerationStructureDescriptor::descriptor();
+                // TODO smallvec
+                let geometry_desc_refs: Vec<&metal::AccelerationStructureGeometryDescriptorRef> =
+                // TODO: is there a better way than &***x?
+                    geometry_descs.iter().map(|x| &***x).collect();
+                let geometry_desc_array = metal::Array::from_slice(&geometry_desc_refs);
+                primitive_as_desc.set_geometry_descriptors(geometry_desc_array);
+
+                let as_sizes =
+                    device.acceleration_structure_sizes_with_descriptor(&primitive_as_desc);
+
+                crate::AccelerationStructureBuildSizes {
+                    acceleration_structure_size: as_sizes.acceleration_structure_size,
+                    update_scratch_size: as_sizes.refit_scratch_buffer_size,
+                    build_scratch_size: as_sizes.build_scratch_buffer_size,
+                }
+            }
+        }
     }
 
     unsafe fn get_acceleration_structure_device_address(
