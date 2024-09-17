@@ -1404,11 +1404,43 @@ impl crate::Device for super::Device {
         &self,
         build_size_desc: &crate::GetAccelerationStructureBuildSizesDescriptor<super::Buffer>,
     ) -> crate::AccelerationStructureBuildSizes {
-        let device = self.shared.device.lock();
-
         match build_size_desc.entries {
-            crate::AccelerationStructureEntries::AABBs(ref _aabbs) => {
-                unimplemented!()
+            crate::AccelerationStructureEntries::AABBs(aabbs) => {
+                // TODO: smallvec
+                let mut aabb_descs: Vec<metal::AccelerationStructureBoundingBoxGeometryDescriptor> =
+                    Vec::with_capacity(aabbs.len());
+
+                for entry in aabbs {
+                    let geometry_desc =
+                        metal::AccelerationStructureBoundingBoxGeometryDescriptor::descriptor();
+                    if let Some(aabb_buffer) = entry.buffer {
+                        geometry_desc.set_bounding_box_buffer(Some(&aabb_buffer.raw));
+                        geometry_desc
+                            .set_bounding_box_buffer_offset(entry.offset as metal::NSUInteger);
+                        geometry_desc.set_bounding_box_stride(entry.stride);
+                        geometry_desc.set_bounding_box_count(entry.count as metal::NSUInteger);
+                        aabb_descs.push(geometry_desc);
+                    }
+                }
+
+                let primitive_as_desc =
+                    metal::PrimitiveAccelerationStructureDescriptor::descriptor();
+                let geometry_desc_refs: Vec<&metal::AccelerationStructureGeometryDescriptorRef> =
+                    // TODO: is there a better way than &***x?
+                    aabb_descs.iter().map(|x| &***x).collect();
+                let geometry_desc_array = metal::Array::from_slice(&geometry_desc_refs);
+                primitive_as_desc.set_geometry_descriptors(geometry_desc_array);
+
+                let as_sizes = {
+                    let device = self.shared.device.lock();
+                    device.acceleration_structure_sizes_with_descriptor(&primitive_as_desc)
+                };
+
+                crate::AccelerationStructureBuildSizes {
+                    acceleration_structure_size: as_sizes.acceleration_structure_size,
+                    update_scratch_size: as_sizes.refit_scratch_buffer_size,
+                    build_scratch_size: as_sizes.build_scratch_buffer_size,
+                }
             }
             crate::AccelerationStructureEntries::Instances(ref _instances) => {
                 unimplemented!()
@@ -1421,7 +1453,7 @@ impl crate::Device for super::Device {
                         metal::AccelerationStructureTriangleGeometryDescriptor::descriptor();
 
                     if let Some(ref vertex_buffer) = triangle_as_entry.vertex_buffer {
-                        geometry_desc.set_vertex_buffer(Some(&&vertex_buffer.raw));
+                        geometry_desc.set_vertex_buffer(Some(&vertex_buffer.raw));
                         geometry_desc.set_vertex_format(conv::map_attribute_format(
                             triangle_as_entry.vertex_format,
                         ));
@@ -1434,7 +1466,7 @@ impl crate::Device for super::Device {
                     let triangle_count = if let Some(ref as_indices) = triangle_as_entry.indices {
                         // TODO: how can there be an index entry without an index buffer?
                         if let Some(ref index_buffer) = as_indices.buffer {
-                            geometry_desc.set_index_buffer(Some(&&index_buffer.raw));
+                            geometry_desc.set_index_buffer(Some(&index_buffer.raw));
                             geometry_desc.set_index_buffer_offset(as_indices.offset as u64);
                             geometry_desc.set_index_type(conv::map_index_format(as_indices.format));
                         }
@@ -1461,8 +1493,10 @@ impl crate::Device for super::Device {
                 let geometry_desc_array = metal::Array::from_slice(&geometry_desc_refs);
                 primitive_as_desc.set_geometry_descriptors(geometry_desc_array);
 
-                let as_sizes =
-                    device.acceleration_structure_sizes_with_descriptor(&primitive_as_desc);
+                let as_sizes = {
+                    let device = self.shared.device.lock();
+                    device.acceleration_structure_sizes_with_descriptor(&primitive_as_desc)
+                };
 
                 crate::AccelerationStructureBuildSizes {
                     acceleration_structure_size: as_sizes.acceleration_structure_size,
@@ -1492,6 +1526,8 @@ impl crate::Device for super::Device {
         &self,
         _desc: &crate::AccelerationStructureDescriptor,
     ) -> Result<super::AccelerationStructure, crate::DeviceError> {
+        // TODO: [MTLDevice makeAccelerationStructure](https://developer.apple.com/documentation/metal/mtldevice/3553971-makeaccelerationstructure)
+        // requires a MTLAccelerationStructureDescriptor, which is not exposed in the wgpu-hal API.
         unimplemented!()
     }
 
@@ -1499,6 +1535,7 @@ impl crate::Device for super::Device {
         &self,
         _acceleration_structure: super::AccelerationStructure,
     ) {
+        // TODO: keep track of internal counter here?
         unimplemented!()
     }
 

@@ -2467,7 +2467,7 @@ pub struct AccelerationStructureTriangles<'a, B: DynBuffer + ?Sized> {
 /// * `offset` - offset in bytes
 #[derive(Clone, Debug)]
 pub struct AccelerationStructureAABBs<'a, B: DynBuffer + ?Sized> {
-    pub buffer: Option<&'a B>,
+    pub buffer: Option<&'a B>, // TODO: why is this optional?
     pub offset: u32, // TODO: inconsistent? should byte offset be expressed in wgt::BufferAddress?
     pub count: u32,
     pub stride: wgt::BufferAddress,
