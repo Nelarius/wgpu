@@ -1475,9 +1475,17 @@ impl crate::Device for super::Device {
 
     unsafe fn get_acceleration_structure_device_address(
         &self,
-        _acceleration_structure: &super::AccelerationStructure,
+        acceleration_structure: &super::AccelerationStructure,
     ) -> wgt::BufferAddress {
-        unimplemented!()
+        // TODO: hardware support for argument buffers is divided into tier 1 and tier 2 devices.
+        // https://developer.apple.com/documentation/metal/buffers/improving_cpu_performance_by_using_argument_buffers?language=objc
+        // This method is only usable on tier 2 devices. On Tier 1 devices, the buffers have private memory layout
+        // which varies by GPU. Requires the use of MTLArgumentEncoder.
+        // TODO use MTLAccelerationStructure::gpuResourceId: https://developer.apple.com/documentation/metal/mtlaccelerationstructure/3974095-gpuresourceid?language=objc
+
+        // TODO: I don't think we're supposed to pass the MTLResourceId around directly as u64.
+        // TODO: why do we need the device address when we're not using argument buffers?
+        acceleration_structure.raw.gpu_resource_id()._impl
     }
 
     unsafe fn create_acceleration_structure(
