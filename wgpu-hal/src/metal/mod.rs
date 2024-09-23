@@ -859,6 +859,7 @@ struct CommandState {
     blit: Option<metal::BlitCommandEncoder>,
     render: Option<metal::RenderCommandEncoder>,
     compute: Option<metal::ComputeCommandEncoder>,
+    acceleration_structure: Option<metal::AccelerationStructureCommandEncoder>,
     raw_primitive_type: metal::MTLPrimitiveType,
     index: Option<IndexState>,
     raw_wg_size: metal::MTLSize,

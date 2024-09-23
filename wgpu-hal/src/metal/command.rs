@@ -11,6 +11,7 @@ impl Default for super::CommandState {
             blit: None,
             render: None,
             compute: None,
+            acceleration_structure: None,
             raw_primitive_type: metal::MTLPrimitiveType::Point,
             index: None,
             raw_wg_size: metal::MTLSize::new(0, 0, 0),
@@ -27,7 +28,11 @@ impl Default for super::CommandState {
 impl super::CommandEncoder {
     fn enter_blit(&mut self) -> &metal::BlitCommandEncoderRef {
         if self.state.blit.is_none() {
-            debug_assert!(self.state.render.is_none() && self.state.compute.is_none());
+            debug_assert!(
+                self.state.render.is_none()
+                    && self.state.compute.is_none()
+                    && self.state.acceleration_structure.is_none()
+            );
             let cmd_buf = self.raw_cmd_buf.as_ref().unwrap();
 
             // Take care of pending timer queries.
@@ -225,6 +230,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
         self.leave_blit();
         debug_assert!(self.state.render.is_none());
         debug_assert!(self.state.compute.is_none());
+        debug_assert!(self.state.acceleration_structure.is_none());
         debug_assert!(self.state.pending_timer_queries.is_empty());
 
         Ok(super::CommandBuffer {
@@ -1137,6 +1143,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
         debug_assert!(self.state.blit.is_none());
         debug_assert!(self.state.compute.is_none());
         debug_assert!(self.state.render.is_none());
+        debug_assert!(self.state.acceleration_structure.is_none());
 
         let raw = self.raw_cmd_buf.as_ref().unwrap();
 
