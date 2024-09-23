@@ -19,6 +19,7 @@ const DESIRED_MAX_LATENCY: u32 = 2;
 
 /// [D3D12_RAYTRACING_INSTANCE_DESC](https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html#d3d12_raytracing_instance_desc)
 /// [VkAccelerationStructureInstanceKHR](https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkAccelerationStructureInstanceKHR.html)
+/// [MTLAccelerationStructureInstanceDescriptor](https://developer.apple.com/documentation/metal/mtlaccelerationstructureinstancedescriptor)
 #[derive(Clone)]
 #[repr(C)]
 struct AccelerationStructureInstance {

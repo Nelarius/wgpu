@@ -1442,8 +1442,37 @@ impl crate::Device for super::Device {
                     build_scratch_size: as_sizes.build_scratch_buffer_size,
                 }
             }
-            crate::AccelerationStructureEntries::Instances(ref _instances) => {
-                unimplemented!()
+            crate::AccelerationStructureEntries::Instances(ref instances) => {
+                let as_sizes = if let Some(instance_desc_buffer) = instances.buffer {
+                    let instance_desc =
+                        metal::InstanceAccelerationStructureDescriptor::descriptor();
+                    instance_desc.set_instance_descriptor_buffer(&*instance_desc_buffer.raw);
+                    instance_desc.set_instance_descriptor_buffer_offset(instances.offset as u64);
+                    instance_desc.set_instance_count(instances.count as metal::NSUInteger);
+                    // TODO: stride? must be at least 64 bytes and must be a multiple of 4 bytes. Defaults to 64 bytes.
+                    instance_desc.set_instance_descriptor_stride(64);
+
+                    // TODO: we need to pass
+                    // instance_desc.set_instanced_acceleration_structures(instances);
+                    instance_desc.set_instance_descriptor_type(
+                        metal::MTLAccelerationStructureInstanceDescriptorType::Default,
+                    );
+
+                    let as_sizes = {
+                        let device = self.shared.device.lock();
+                        device.acceleration_structure_sizes_with_descriptor(&instance_desc)
+                    };
+
+                    crate::AccelerationStructureBuildSizes {
+                        acceleration_structure_size: as_sizes.acceleration_structure_size,
+                        update_scratch_size: as_sizes.refit_scratch_buffer_size,
+                        build_scratch_size: as_sizes.build_scratch_buffer_size,
+                    }
+                } else {
+                    crate::AccelerationStructureBuildSizes::default()
+                };
+
+                as_sizes
             }
             crate::AccelerationStructureEntries::Triangles(ref triangles) => {
                 let mut geometry_descs = Vec::with_capacity(triangles.len());
