@@ -489,7 +489,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
 
                     let range = vk::AccelerationStructureBuildRangeInfoKHR::default()
                         .primitive_count(instances.count)
-                        .primitive_offset(instances.offset);
+                        .primitive_offset(instances.offset as u32);
 
                     (smallvec::smallvec![geometry], smallvec::smallvec![range])
                 }
@@ -524,7 +524,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
 
                             range = range
                                 .primitive_count(indices.count / 3)
-                                .primitive_offset(indices.offset)
+                                .primitive_offset(indices.offset as u32)
                                 .first_vertex(triangles.first_vertex);
                         } else {
                             range = range
@@ -546,7 +546,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
                                     device_address: transform_device_address,
                                 });
 
-                            range = range.transform_offset(transform.offset);
+                            range = range.transform_offset(transform.offset as u32);
                         }
 
                         let geometry = vk::AccelerationStructureGeometryKHR::default()
@@ -579,7 +579,7 @@ impl crate::CommandEncoder for super::CommandEncoder {
 
                         let range = vk::AccelerationStructureBuildRangeInfoKHR::default()
                             .primitive_count(aabb.count)
-                            .primitive_offset(aabb.offset);
+                            .primitive_offset(aabb.offset as u32);
 
                         let geometry = vk::AccelerationStructureGeometryKHR::default()
                             .geometry_type(vk::GeometryTypeKHR::AABBS)

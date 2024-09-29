@@ -1147,13 +1147,13 @@ fn iter_buffers<'a, 'b>(
             > {
                 format: mesh.size.index_format.unwrap(),
                 buffer: Some(index_buffer.as_ref()),
-                offset: mesh.index_buffer_offset.unwrap() as u32,
+                offset: mesh.index_buffer_offset.unwrap(),
                 count: mesh.size.index_count.unwrap(),
             }),
             transform: transform_buffer.map(|transform_buffer| {
                 hal::AccelerationStructureTriangleTransform {
                     buffer: transform_buffer.as_ref(),
-                    offset: mesh.transform_buffer_offset.unwrap() as u32,
+                    offset: mesh.transform_buffer_offset.unwrap(),
                 }
             }),
             flags: mesh.size.flags,

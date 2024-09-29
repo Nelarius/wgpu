@@ -2468,7 +2468,7 @@ pub struct AccelerationStructureTriangles<'a, B: DynBuffer + ?Sized> {
 #[derive(Clone, Debug)]
 pub struct AccelerationStructureAABBs<'a, B: DynBuffer + ?Sized> {
     pub buffer: Option<&'a B>,
-    pub offset: u32,
+    pub offset: wgt::BufferAddress,
     pub count: u32,
     pub stride: wgt::BufferAddress,
     pub flags: AccelerationStructureGeometryFlags,
@@ -2478,7 +2478,7 @@ pub struct AccelerationStructureAABBs<'a, B: DynBuffer + ?Sized> {
 #[derive(Clone, Debug)]
 pub struct AccelerationStructureInstances<'a, B: DynBuffer + ?Sized> {
     pub buffer: Option<&'a B>,
-    pub offset: u32,
+    pub offset: wgt::BufferAddress,
     pub count: u32,
 }
 
@@ -2487,7 +2487,7 @@ pub struct AccelerationStructureInstances<'a, B: DynBuffer + ?Sized> {
 pub struct AccelerationStructureTriangleIndices<'a, B: DynBuffer + ?Sized> {
     pub format: wgt::IndexFormat,
     pub buffer: Option<&'a B>,
-    pub offset: u32,
+    pub offset: wgt::BufferAddress,
     pub count: u32,
 }
 
@@ -2495,7 +2495,7 @@ pub struct AccelerationStructureTriangleIndices<'a, B: DynBuffer + ?Sized> {
 #[derive(Clone, Debug)]
 pub struct AccelerationStructureTriangleTransform<'a, B: DynBuffer + ?Sized> {
     pub buffer: &'a B,
-    pub offset: u32,
+    pub offset: wgt::BufferAddress,
 }
 
 pub use wgt::AccelerationStructureFlags as AccelerationStructureBuildFlags;
