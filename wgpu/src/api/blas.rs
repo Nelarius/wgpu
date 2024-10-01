@@ -161,16 +161,11 @@ static_assertions::assert_impl_all!(BlasShared: WasmNotSendSync);
 ///
 /// [Tlas]: crate::Tlas
 pub struct Blas {
-    pub(crate) handle: Option<u64>,
     pub(crate) shared: Arc<BlasShared>,
 }
 static_assertions::assert_impl_all!(Blas: WasmNotSendSync);
 
 impl Blas {
-    /// Raw handle to the acceleration structure, used inside raw instance buffers.
-    pub fn handle(&self) -> Option<u64> {
-        self.handle
-    }
     /// Destroy the associated native resources as soon as possible.
     pub fn destroy(&self) {
         DynContext::blas_destroy(&*self.shared.context, self.shared.data.as_ref());

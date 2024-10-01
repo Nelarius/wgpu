@@ -303,14 +303,9 @@ struct RawTlasInstance {
     transform: [f32; 12],
     custom_index_and_mask: u32,
     shader_binding_table_record_offset_and_flags: u32,
-    acceleration_structure_reference: u64,
 }
 
-pub(crate) fn tlas_instance_into_bytes(
-    instance: &TlasInstance,
-    blas_address: u64,
-    backend: wgt::Backend,
-) -> Vec<u8> {
+pub(crate) fn tlas_instance_into_bytes(instance: &TlasInstance, backend: wgt::Backend) -> Vec<u8> {
     // TODO: get the device to do this
     match backend {
         wgt::Backend::Empty => vec![],
@@ -321,7 +316,6 @@ pub(crate) fn tlas_instance_into_bytes(
                 custom_index_and_mask: (instance.custom_index & MAX_U24)
                     | (u32::from(instance.mask) << 24),
                 shader_binding_table_record_offset_and_flags: 0,
-                acceleration_structure_reference: blas_address,
             };
             let temp: *const _ = &temp;
             unsafe {

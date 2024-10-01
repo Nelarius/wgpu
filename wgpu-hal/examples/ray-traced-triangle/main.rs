@@ -25,7 +25,6 @@ struct AccelerationStructureInstance {
     transform: [f32; 12],
     custom_index_and_mask: u32,
     shader_binding_table_record_offset_and_flags: u32,
-    acceleration_structure_reference: u64,
 }
 
 impl std::fmt::Debug for AccelerationStructureInstance {
@@ -39,10 +38,6 @@ impl std::fmt::Debug for AccelerationStructureInstance {
                 &self.shader_binding_table_record_offset(),
             )
             .field("flags()", &self.flags())
-            .field(
-                "acceleration_structure_reference",
-                &self.acceleration_structure_reference,
-            )
             .finish()
     }
 }
@@ -142,7 +137,6 @@ impl AccelerationStructureInstance {
         mask: u8,
         shader_binding_table_record_offset: u32,
         flags: u8,
-        acceleration_structure_reference: u64,
     ) -> Self {
         debug_assert!(
             custom_index <= Self::MAX_U24,
@@ -159,7 +153,6 @@ impl AccelerationStructureInstance {
             shader_binding_table_record_offset_and_flags: (shader_binding_table_record_offset
                 & Self::MAX_U24)
                 | (u32::from(flags) << 24),
-            acceleration_structure_reference,
         }
     }
 }
@@ -651,7 +644,6 @@ impl<A: hal::Api> Example<A> {
                 0xff,
                 0,
                 0,
-                unsafe { device.get_acceleration_structure_device_address(&blas) },
             ),
             AccelerationStructureInstance::new(
                 &Affine3A::from_translation(Vec3 {
@@ -663,7 +655,6 @@ impl<A: hal::Api> Example<A> {
                 0xff,
                 0,
                 0,
-                unsafe { device.get_acceleration_structure_device_address(&blas) },
             ),
             AccelerationStructureInstance::new(
                 &Affine3A::from_translation(Vec3 {
@@ -675,7 +666,6 @@ impl<A: hal::Api> Example<A> {
                 0xff,
                 0,
                 0,
-                unsafe { device.get_acceleration_structure_device_address(&blas) },
             ),
         ];
 

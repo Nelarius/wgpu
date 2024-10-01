@@ -961,10 +961,6 @@ pub trait Device: WasmNotSendSync {
         &self,
         desc: &GetAccelerationStructureBuildSizesDescriptor<<Self::A as Api>::Buffer>,
     ) -> AccelerationStructureBuildSizes;
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        acceleration_structure: &<Self::A as Api>::AccelerationStructure,
-    ) -> wgt::BufferAddress;
     unsafe fn destroy_acceleration_structure(
         &self,
         acceleration_structure: <Self::A as Api>::AccelerationStructure,

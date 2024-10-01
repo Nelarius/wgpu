@@ -1796,15 +1796,6 @@ impl crate::Device for super::Device {
         todo!()
     }
 
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        _acceleration_structure: &super::AccelerationStructure,
-    ) -> wgt::BufferAddress {
-        // Implement using `GetGPUVirtualAddress`:
-        // https://docs.microsoft.com/en-us/windows/win32/api/d3d12/nf-d3d12-id3d12resource-getgpuvirtualaddress
-        todo!()
-    }
-
     unsafe fn create_acceleration_structure(
         &self,
         _desc: &crate::AccelerationStructureDescriptor,

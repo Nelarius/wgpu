@@ -152,10 +152,6 @@ pub trait DynDevice: DynResource {
         &self,
         desc: &GetAccelerationStructureBuildSizesDescriptor<dyn DynBuffer>,
     ) -> AccelerationStructureBuildSizes;
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        acceleration_structure: &dyn DynAccelerationStructure,
-    ) -> wgt::BufferAddress;
     unsafe fn destroy_acceleration_structure(
         &self,
         acceleration_structure: Box<dyn DynAccelerationStructure>,
@@ -509,14 +505,6 @@ impl<D: Device + DynResource> DynDevice for D {
             flags: desc.flags,
         };
         unsafe { D::get_acceleration_structure_build_sizes(self, &desc) }
-    }
-
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        acceleration_structure: &dyn DynAccelerationStructure,
-    ) -> wgt::BufferAddress {
-        let acceleration_structure = acceleration_structure.expect_downcast_ref();
-        unsafe { D::get_acceleration_structure_device_address(self, acceleration_structure) }
     }
 
     unsafe fn destroy_acceleration_structure(

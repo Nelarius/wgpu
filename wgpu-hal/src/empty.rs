@@ -299,12 +299,6 @@ impl crate::Device for Context {
     ) -> crate::AccelerationStructureBuildSizes {
         Default::default()
     }
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        _acceleration_structure: &Resource,
-    ) -> wgt::BufferAddress {
-        Default::default()
-    }
     unsafe fn destroy_acceleration_structure(&self, _acceleration_structure: Resource) {}
 
     fn get_internal_counters(&self) -> wgt::HalCounters {

@@ -1618,12 +1618,6 @@ impl crate::Device for super::Device {
     ) -> crate::AccelerationStructureBuildSizes {
         unimplemented!()
     }
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        _acceleration_structure: &super::AccelerationStructure,
-    ) -> wgt::BufferAddress {
-        unimplemented!()
-    }
     unsafe fn destroy_acceleration_structure(
         &self,
         _acceleration_structure: super::AccelerationStructure,

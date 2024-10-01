@@ -84,11 +84,6 @@ impl Device {
         }
         .map_err(DeviceError::from_hal)?;
 
-        let handle = unsafe {
-            self.raw()
-                .get_acceleration_structure_device_address(raw.as_ref())
-        };
-
         Ok(Arc::new(resource::Blas {
             raw: ManuallyDrop::new(raw),
             device: self.clone(),
@@ -96,7 +91,6 @@ impl Device {
             sizes,
             flags: blas_desc.flags,
             update_mode: blas_desc.update_mode,
-            handle,
             label: blas_desc.label.to_string(),
             built_index: RwLock::new(rank::BLAS_BUILT_INDEX, None),
             tracking_data: TrackingData::new(self.tracker_indices.blas_s.clone()),
@@ -168,7 +162,7 @@ impl Global {
         desc: &resource::BlasDescriptor,
         sizes: wgt::BlasGeometrySizeDescriptors,
         id_in: Option<BlasId>,
-    ) -> (BlasId, Option<u64>, Option<CreateBlasError>) {
+    ) -> (BlasId, Option<CreateBlasError>) {
         profiling::scope!("Device::create_blas");
 
         let hub = &self.hub;
@@ -202,16 +196,15 @@ impl Global {
                 Ok(blas) => blas,
                 Err(e) => break 'error e,
             };
-            let handle = blas.handle;
 
             let id = fid.assign(Fallible::Valid(blas.clone()));
             log::info!("Created blas {:?} with {:?}", id, desc);
 
-            return (id, Some(handle), None);
+            return (id, None);
         };
 
         let id = fid.assign(Fallible::Invalid(Arc::new(error.to_string())));
-        (id, None, Some(error))
+        (id, Some(error))
     }
 
     pub fn device_create_tlas(

@@ -3009,9 +3009,9 @@ impl crate::Context for ContextWgpuCore {
         device_data: &Self::DeviceData,
         desc: &crate::CreateBlasDescriptor<'_>,
         sizes: wgt::BlasGeometrySizeDescriptors,
-    ) -> (Option<u64>, Self::BlasData) {
+    ) -> Self::BlasData {
         let global = &self.0;
-        let (id, handle, error) = global.device_create_blas(
+        let (id, error) = global.device_create_blas(
             device_data.id,
             &desc.map_label(|l| l.map(Borrowed)),
             sizes,
@@ -3025,13 +3025,10 @@ impl crate::Context for ContextWgpuCore {
                 "Device::create_blas",
             );
         }
-        (
-            handle,
-            Blas {
-                id,
-                // error_sink: Arc::clone(&device_data.error_sink),
-            },
-        )
+        Blas {
+            id,
+            // error_sink: Arc::clone(&device_data.error_sink),
+        }
     }
 
     fn device_create_tlas(

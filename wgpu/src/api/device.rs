@@ -542,8 +542,7 @@ impl Device {
         desc: &CreateBlasDescriptor<'_>,
         sizes: BlasGeometrySizeDescriptors,
     ) -> Blas {
-        let (handle, data) =
-            DynContext::device_create_blas(&*self.context, self.data.as_ref(), desc, sizes);
+        let data = DynContext::device_create_blas(&*self.context, self.data.as_ref(), desc, sizes);
 
         Blas {
             #[allow(clippy::arc_with_non_send_sync)]
@@ -551,7 +550,6 @@ impl Device {
                 context: Arc::clone(&self.context),
                 data,
             }),
-            handle,
         }
     }
 

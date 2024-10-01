@@ -2351,27 +2351,6 @@ impl crate::Device for super::Device {
         }
     }
 
-    unsafe fn get_acceleration_structure_device_address(
-        &self,
-        acceleration_structure: &super::AccelerationStructure,
-    ) -> wgt::BufferAddress {
-        let ray_tracing_functions = self
-            .shared
-            .extension_fns
-            .ray_tracing
-            .as_ref()
-            .expect("Feature `RAY_TRACING` not enabled");
-
-        unsafe {
-            ray_tracing_functions
-                .acceleration_structure
-                .get_acceleration_structure_device_address(
-                    &vk::AccelerationStructureDeviceAddressInfoKHR::default()
-                        .acceleration_structure(acceleration_structure.raw),
-                )
-        }
-    }
-
     unsafe fn create_acceleration_structure(
         &self,
         desc: &crate::AccelerationStructureDescriptor,
